@@ -4,12 +4,9 @@ public class QuantityLength {
     private final LengthUnit unit;
 
     public QuantityLength(double value, LengthUnit unit) {
-        if (unit == null)
+        if (unit == null) {
             throw new IllegalArgumentException("Unit cannot be null");
-
-        if (!Double.isFinite(value))
-            throw new IllegalArgumentException("Invalid numeric value");
-
+        }
         this.value = value;
         this.unit = unit;
     }
@@ -54,7 +51,7 @@ public class QuantityLength {
     }
 
     @Override
-    public String toString() {
-        return value + " " + unit;
+    public int hashCode() {
+        return Double.hashCode(toFeet());
     }
 }

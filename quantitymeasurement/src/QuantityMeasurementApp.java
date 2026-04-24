@@ -1,30 +1,65 @@
-public class QuantityMeasurementApp {
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-    public static void demonstrateLengthConversion(double value, LengthUnit from, LengthUnit to) {
-        double result = QuantityLength.convert(value, from, to);
-        System.out.println("Converted: " + result);
+class QuantityMeasurementAppTest {
+
+    @Test
+    void testEquality_YardToYard_SameValue() {
+        assertTrue(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(1.0, LengthUnit.YARDS)));
     }
 
-    public static void demonstrateLengthConversion(QuantityLength length, LengthUnit to) {
-        QuantityLength converted = length.convertTo(to);
-        System.out.println("Converted: " + converted);
+    @Test
+    void testEquality_YardToFeet_EquivalentValue() {
+        assertTrue(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(3.0, LengthUnit.FEET)));
     }
 
-    public static void demonstrateLengthEquality(QuantityLength q1, QuantityLength q2) {
-        System.out.println("Equal: " + q1.equals(q2));
+    @Test
+    void testEquality_YardToInches_EquivalentValue() {
+        assertTrue(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(36.0, LengthUnit.INCH)));
     }
 
-    public static void main(String[] args) {
+    @Test
+    void testEquality_CentimeterToInch_EquivalentValue() {
+        assertTrue(new QuantityLength(1.0, LengthUnit.CENTIMETER)
+                .equals(new QuantityLength(0.393701, LengthUnit.INCH)));
+    }
 
-        demonstrateLengthConversion(1.0, LengthUnit.FEET, LengthUnit.INCH); // 12
-        demonstrateLengthConversion(3.0, LengthUnit.YARDS, LengthUnit.FEET); // 9
+    @Test
+    void testEquality_DifferentValues() {
+        assertFalse(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(2.0, LengthUnit.FEET)));
+    }
 
-        QuantityLength q = new QuantityLength(36.0, LengthUnit.INCH);
-        demonstrateLengthConversion(q, LengthUnit.YARDS); // 1
+    @Test
+    void testEquality_TransitiveProperty() {
+        QuantityLength a = new QuantityLength(1.0, LengthUnit.YARDS);
+        QuantityLength b = new QuantityLength(3.0, LengthUnit.FEET);
+        QuantityLength c = new QuantityLength(36.0, LengthUnit.INCH);
 
-        demonstrateLengthEquality(
-                new QuantityLength(1.0, LengthUnit.FEET),
-                new QuantityLength(12.0, LengthUnit.INCH)
-        );
+        assertTrue(a.equals(b));
+        assertTrue(b.equals(c));
+        assertTrue(a.equals(c));
+    }
+
+    @Test
+    void testNullComparison() {
+        QuantityLength q = new QuantityLength(1.0, LengthUnit.YARDS);
+        assertFalse(q.equals(null));
+    }
+
+    @Test
+    void testSameReference() {
+        QuantityLength q = new QuantityLength(1.0, LengthUnit.CENTIMETER);
+        assertTrue(q.equals(q));
+    }
+
+    @Test
+    void testInvalidUnit() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new QuantityLength(1.0, null);
+        });
     }
 }
