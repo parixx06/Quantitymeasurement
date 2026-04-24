@@ -1,121 +1,86 @@
-private static final double EPS = 1e-6;
+public class QuantityLength {
 
-@Test
-void testConversion_FeetToInches() {
-    assertEquals(12.0,
-            QuantityLength.convert(1.0, LengthUnit.FEET, LengthUnit.INCH),
-            EPS);
-    void testAddition_SameUnit_FeetPlusFeet() {
-        QuantityLength result =
-                new QuantityLength(1.0, LengthUnit.FEET)
-                        .add(new QuantityLength(2.0, LengthUnit.FEET));
+    private final double value;
+    private final LengthUnit unit;
 
-        assertEquals(3.0, result.convertTo(LengthUnit.FEET).value, EPS);
+    public QuantityLength(double value, LengthUnit unit) {
+        if (unit == null)
+            throw new IllegalArgumentException("Unit cannot be null");
+
+        if (!Double.isFinite(value))
+            throw new IllegalArgumentException("Invalid value");
+
+        this.value = value;
+        this.unit = unit;
     }
 
-    @Test
-    void testConversion_InchesToFeet() {
-        assertEquals(2.0,
-                QuantityLength.convert(24.0, LengthUnit.INCH, LengthUnit.FEET),
-                EPS);
-        void testAddition_CrossUnit_FeetPlusInches() {
-            QuantityLength result =
-                    new QuantityLength(1.0, LengthUnit.FEET)
-                            .add(new QuantityLength(12.0, LengthUnit.INCH));
+    // Getter (IMPORTANT for tests)
+    public double getValue() {
+        return value;
+    }
 
-            assertEquals(2.0, result.convertTo(LengthUnit.FEET).value, EPS);
-        }
+    public LengthUnit getUnit() {
+        return unit;
+    }
 
-        @Test
-        void testConversion_YardsToInches() {
-            assertEquals(36.0,
-                    QuantityLength.convert(1.0, LengthUnit.YARDS, LengthUnit.INCH),
-                    EPS);
-            void testAddition_CrossUnit_InchPlusFeet() {
-                QuantityLength result =
-                        new QuantityLength(12.0, LengthUnit.INCH)
-                                .add(new QuantityLength(1.0, LengthUnit.FEET));
+    // Convert to base (feet)
+    private double toFeet() {
+        return unit.toFeet(value);
+    }
 
-                assertEquals(24.0, result.convertTo(LengthUnit.INCH).value, EPS);
-            }
+    // ✅ UC5: convert to another unit
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        if (targetUnit == null)
+            throw new IllegalArgumentException("Target unit cannot be null");
 
-            @Test
-            void testConversion_CentimeterToInch() {
-                assertEquals(1.0,
-                        QuantityLength.convert(2.54, LengthUnit.CENTIMETER, LengthUnit.INCH),
-                        1e-3); // tolerance
-                void testAddition_YardPlusFeet() {
-                    QuantityLength result =
-                            new QuantityLength(1.0, LengthUnit.YARDS)
-                                    .add(new QuantityLength(3.0, LengthUnit.FEET));
+        double feet = this.toFeet();
+        double converted = targetUnit.fromFeet(feet);
 
-                    assertEquals(2.0, result.convertTo(LengthUnit.YARDS).value, EPS);
-                }
+        return new QuantityLength(converted, targetUnit);
+    }
 
-                @Test
-                void testConversion_RoundTrip() {
-                    double value = 5.0;
-                    double result = QuantityLength.convert(
-                            QuantityLength.convert(value, LengthUnit.FEET, LengthUnit.INCH),
-                            LengthUnit.INCH,
-                            LengthUnit.FEET
-                    );
+    // ✅ UC6: add (result in same unit as THIS object)
+    public QuantityLength add(QuantityLength other) {
+        return add(this, other, this.unit);
+    }
 
-                    assertEquals(value, result, EPS);
-                    void testAddition_CentimeterPlusInch() {
-                        QuantityLength result =
-                                new QuantityLength(2.54, LengthUnit.CENTIMETER)
-                                        .add(new QuantityLength(1.0, LengthUnit.INCH));
+    // ✅ UC7: add with TARGET UNIT
+    public static QuantityLength add(
+            QuantityLength a,
+            QuantityLength b,
+            LengthUnit targetUnit) {
 
-                        assertEquals(5.08,
-                                result.convertTo(LengthUnit.CENTIMETER).value,
-                                1e-2);
-                    }
+        if (a == null || b == null)
+            throw new IllegalArgumentException("Operands cannot be null");
 
-                    @Test
-                    void testConversion_Zero() {
-                        assertEquals(0.0,
-                                QuantityLength.convert(0.0, LengthUnit.FEET, LengthUnit.INCH),
-                                EPS);
-                        void testAddition_Commutativity() {
-                            QuantityLength a = new QuantityLength(1.0, LengthUnit.FEET);
-                            QuantityLength b = new QuantityLength(12.0, LengthUnit.INCH);
+        if (targetUnit == null)
+            throw new IllegalArgumentException("Target unit cannot be null");
 
-                            assertEquals(a.add(b).toFeet(), b.add(a).toFeet(), EPS);
-                        }
+        double sumFeet = a.toFeet() + b.toFeet();
+        double result = targetUnit.fromFeet(sumFeet);
 
-                        @Test
-                        void testConversion_Negative() {
-                            assertEquals(-12.0,
-                                    QuantityLength.convert(-1.0, LengthUnit.FEET, LengthUnit.INCH),
-                                    EPS);
-                            void testAddition_WithZero() {
-                                QuantityLength result =
-                                        new QuantityLength(5.0, LengthUnit.FEET)
-                                                .add(new QuantityLength(0.0, LengthUnit.INCH));
+        return new QuantityLength(result, targetUnit);
+    }
 
-                                assertEquals(5.0, result.convertTo(LengthUnit.FEET).value, EPS);
-                            }
+    // Equality (UC3)
+    @Override
+    public boolean equals(Object obj) {
 
-                            @Test
-                            void testConversion_InvalidUnit() {
-                                assertThrows(IllegalArgumentException.class, () -> {
-                                    QuantityLength.convert(1.0, null, LengthUnit.FEET);
-                                });
-                                void testAddition_NegativeValues() {
-                                    QuantityLength result =
-                                            new QuantityLength(5.0, LengthUnit.FEET)
-                                                    .add(new QuantityLength(-2.0, LengthUnit.FEET));
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
-                                    assertEquals(3.0, result.convertTo(LengthUnit.FEET).value, EPS);
-                                }
+        QuantityLength other = (QuantityLength) obj;
 
-                                @Test
-                                void testConversion_InvalidValue() {
-                                    void testAddition_NullOperand() {
-                                        assertThrows(IllegalArgumentException.class, () -> {
-                                            QuantityLength.convert(Double.NaN, LengthUnit.FEET, LengthUnit.INCH);
-                                            new QuantityLength(1.0, LengthUnit.FEET).add(null);
-                                        });
-                                    }
-                                }
+        return Double.compare(this.toFeet(), other.toFeet()) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(toFeet());
+    }
+
+    @Override
+    public String toString() {
+        return value + " " + unit;
+    }
+}
