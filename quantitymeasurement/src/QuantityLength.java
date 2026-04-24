@@ -11,7 +11,6 @@ public class QuantityLength {
         this.unit = unit;
     }
 
-    // Convert to base unit (feet)
     private double toFeet() {
         return unit.toFeet(value);
     }
@@ -20,12 +19,10 @@ public class QuantityLength {
     public boolean equals(Object obj) {
 
         if (this == obj) return true;
-
         if (obj == null || getClass() != obj.getClass()) return false;
 
         QuantityLength other = (QuantityLength) obj;
 
-        // Compare after conversion
         return Double.compare(this.toFeet(), other.toFeet()) == 0;
     }
 
