@@ -15,6 +15,30 @@ public class QuantityLength {
         return unit.toFeet(value);
     }
 
+    // 🔥 Instance conversion method
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        if (targetUnit == null)
+            throw new IllegalArgumentException("Target unit cannot be null");
+
+        double baseFeet = this.toFeet();
+        double convertedValue = targetUnit.fromFeet(baseFeet);
+
+        return new QuantityLength(convertedValue, targetUnit);
+    }
+
+    // 🔥 Static API method (important for UC5)
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+
+        if (source == null || target == null)
+            throw new IllegalArgumentException("Units cannot be null");
+
+        if (!Double.isFinite(value))
+            throw new IllegalArgumentException("Invalid numeric value");
+
+        double feetValue = source.toFeet(value);
+        return target.fromFeet(feetValue);
+    }
+
     @Override
     public boolean equals(Object obj) {
 
