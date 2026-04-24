@@ -1,73 +1,30 @@
-
 public class QuantityMeasurementApp {
 
-    // ---------------- FEET CLASS ----------------
-    public static class Feet {
-        private final double value;
-
-        public Feet(double value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            Feet other = (Feet) obj;
-            return Double.compare(this.value, other.value) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Double.hashCode(value);
-        }
+    public static void demonstrateLengthConversion(double value, LengthUnit from, LengthUnit to) {
+        double result = QuantityLength.convert(value, from, to);
+        System.out.println("Converted: " + result);
     }
 
-    // ---------------- INCHES CLASS ----------------
-    public static class Inches {
-        private final double value;
-
-        public Inches(double value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            Inches other = (Inches) obj;
-            return Double.compare(this.value, other.value) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Double.hashCode(value);
-        }
+    public static void demonstrateLengthConversion(QuantityLength length, LengthUnit to) {
+        QuantityLength converted = length.convertTo(to);
+        System.out.println("Converted: " + converted);
     }
 
-    // ---------------- STATIC METHODS ----------------
-
-    public static boolean compareFeet(double val1, double val2) {
-        Feet f1 = new Feet(val1);
-        Feet f2 = new Feet(val2);
-        return f1.equals(f2);
+    public static void demonstrateLengthEquality(QuantityLength q1, QuantityLength q2) {
+        System.out.println("Equal: " + q1.equals(q2));
     }
 
-    public static boolean compareInches(double val1, double val2) {
-        Inches i1 = new Inches(val1);
-        Inches i2 = new Inches(val2);
-        return i1.equals(i2);
-    }
-
-    // ---------------- MAIN METHOD ----------------
     public static void main(String[] args) {
 
-        boolean feetResult = compareFeet(1.0, 1.0);
-        boolean inchResult = compareInches(1.0, 1.0);
+        demonstrateLengthConversion(1.0, LengthUnit.FEET, LengthUnit.INCH); // 12
+        demonstrateLengthConversion(3.0, LengthUnit.YARDS, LengthUnit.FEET); // 9
 
-        System.out.println("Feet Equal (" + feetResult + ")");
-        System.out.println("Inches Equal (" + inchResult + ")");
+        QuantityLength q = new QuantityLength(36.0, LengthUnit.INCH);
+        demonstrateLengthConversion(q, LengthUnit.YARDS); // 1
+
+        demonstrateLengthEquality(
+                new QuantityLength(1.0, LengthUnit.FEET),
+                new QuantityLength(12.0, LengthUnit.INCH)
+        );
     }
 }
